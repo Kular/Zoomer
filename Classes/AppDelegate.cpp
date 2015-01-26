@@ -11,8 +11,6 @@ AppDelegate::~AppDelegate()
 {
 }
 
-//if you want a different context,just modify the value of glContextAttrs
-//it will takes effect on all platforms
 void AppDelegate::initGLContextAttrs()
 {
     //set OpenGL context attributions,now can only set six attributions:
@@ -23,24 +21,28 @@ void AppDelegate::initGLContextAttrs()
 }
 
 bool AppDelegate::applicationDidFinishLaunching() {
-    // initialize director
+
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = GLViewImpl::create("My Game");
+        glview = GLViewImpl::create("Zoomer!");
         director->setOpenGLView(glview);
     }
+    
+    auto visibleSize = director->getWinSize();
+    log("winSize: (%f, %f)", visibleSize.width, visibleSize.height);
+    
+    // check if the running device is iPhone6 plus
+    if (visibleSize.width > 2048) {
+        glview->setDesignResolutionSize(1920, 1080, ResolutionPolicy::SHOW_ALL);
+        visibleSize = director->getWinSize();
+        log("new winSize: (%f, %f)", visibleSize.width, visibleSize.height);
+    }
 
-    // turn on display FPS
     director->setDisplayStats(true);
-
-    // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
-
-    // create a scene. it's an autorelease object
+    
     auto scene = HelloWorld::createScene();
-
-    // run
     director->runWithScene(scene);
 
     return true;
