@@ -84,7 +84,7 @@ void HelloWorld::touchesBegan(const std::vector<cocos2d::Touch *> &touches, coco
         if (touchId > 1) {
             break;
         }
-        log("TouchID: %d", touchId);
+//        log("TouchID: %d", touchId);
         auto pos = touch->getLocation();
         fingerDrawNodes[touchId]->drawCircle(pos, 140, 360, 20, false, 1, 1, Color4F::YELLOW);
         
@@ -113,7 +113,7 @@ void HelloWorld::touchesBegan(const std::vector<cocos2d::Touch *> &touches, coco
         */
     }
     
-    if (touches.size() == 2) {
+    if (touchIDs.at(0) && touchIDs.at(1)) {
         Vec2 midPos = getMidPos(touchPositions[0], touchPositions[1]);
         drawNodeForMidPoint->drawLine(touchPositions[0], touchPositions[1], Color4F::BLUE);
         drawNodeForMidPoint->drawPoint(midPos, 30.f, Color4F::RED);
@@ -128,22 +128,23 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
         if (touchId > 1) {
             break;
         }
-        if (touchIDs.at(0) && touchIDs.at(1)) {
-            auto pos = touchPositions[touchId];
-            auto delta = touch->getDelta();
-            pos.x += delta.x;
-            pos.y += delta.y;
-            touchPositions[touchId] = pos;
-            fingerDrawNodes[touchId]->clear();
-            fingerDrawNodes[touchId]->drawCircle(pos, 140, 360, 20, false, 1, 1, Color4F::YELLOW);
-        }
+        auto pos = touch->getLocation();
+        fingerDrawNodes[touchId]->clear();
+        fingerDrawNodes[touchId]->drawCircle(pos, 140, 360, 20, false, 1, 1, Color4F::YELLOW);
+        
+        touchPositions[touchId] = pos;
+        fingerDrawNodes[touchId]->clear();
+        fingerDrawNodes[touchId]->drawCircle(pos, 140, 360, 20, false, 1, 1, Color4F::YELLOW);
+       
     }
-    if (touches.size() == 2) {
+    
+    if (touchIDs.at(0) && touchIDs.at(1)) {
         Vec2 midPos = getMidPos(touchPositions[0], touchPositions[1]);
         drawNodeForMidPoint->clear();
         drawNodeForMidPoint->drawLine(touchPositions[0], touchPositions[1], Color4F::BLUE);
         drawNodeForMidPoint->drawPoint(midPos, 30.f, Color4F::RED);
     }
+
 }
 
 void HelloWorld::touchesEnded(const std::vector<cocos2d::Touch *> &touches, cocos2d::Event *event)
