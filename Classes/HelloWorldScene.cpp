@@ -53,7 +53,6 @@ bool HelloWorld::init()
     touchPositions[0] = Vec2::ZERO;
     touchPositions[1] = Vec2::ZERO;
     
-    
     drawNodeForFinger1 = DrawNode::create();
     drawNodeForFinger2 = DrawNode::create();
     drawNodeForMidPoint = DrawNode::create();
@@ -82,9 +81,8 @@ void HelloWorld::touchesBegan(const std::vector<cocos2d::Touch *> &touches, coco
     for (auto &touch : touches) {
         int touchId = touch->getID();
         if (touchId > 1) {
-            break;
+            continue;
         }
-//        log("TouchID: %d", touchId);
         auto pos = touch->getLocation();
         fingerDrawNodes[touchId]->drawCircle(pos, 140, 360, 20, false, 1, 1, Color4F::YELLOW);
         
@@ -101,22 +99,22 @@ void HelloWorld::touchesBegan(const std::vector<cocos2d::Touch *> &touches, coco
         } else {
             iter2->second = pos;
         }
-
-        /*
-        log("Touch Pos: (%f, %f)", pos.x, pos.y);
-        auto target = event->getCurrentTarget();
-        if (target->getTag() != MAP_TAG) {
-            continue;
-        }
-        auto locationInNode = target->convertToNodeSpace(pos);
-        log("Pos in node: (%f, %f)", locationInNode.x, locationInNode.y);
-        */
     }
     
     if (touchIDs.at(0) && touchIDs.at(1)) {
         Vec2 midPos = getMidPos(touchPositions[0], touchPositions[1]);
         drawNodeForMidPoint->drawLine(touchPositions[0], touchPositions[1], Color4F::BLUE);
         drawNodeForMidPoint->drawPoint(midPos, 30.f, Color4F::RED);
+        
+        auto target = event->getCurrentTarget();
+        if (target->getTag() != MAP_TAG) {
+            return;
+        }
+        recentMidPos = midPos;
+        auto locationInNode = target->convertToNodeSpace(recentMidPos);
+        setCurAnchor(locationInNode, mapSprite);
+        
+        recentFingersDistance = touchPositions[0].distance(touchPositions[1]);
     }
     
 }
@@ -126,16 +124,13 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
     for (auto &touch : touches) {
         int touchId = touch->getID();
         if (touchId > 1) {
-            break;
+            continue;
         }
         auto pos = touch->getLocation();
         fingerDrawNodes[touchId]->clear();
         fingerDrawNodes[touchId]->drawCircle(pos, 140, 360, 20, false, 1, 1, Color4F::YELLOW);
         
         touchPositions[touchId] = pos;
-        fingerDrawNodes[touchId]->clear();
-        fingerDrawNodes[touchId]->drawCircle(pos, 140, 360, 20, false, 1, 1, Color4F::YELLOW);
-       
     }
     
     if (touchIDs.at(0) && touchIDs.at(1)) {
@@ -143,6 +138,23 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
         drawNodeForMidPoint->clear();
         drawNodeForMidPoint->drawLine(touchPositions[0], touchPositions[1], Color4F::BLUE);
         drawNodeForMidPoint->drawPoint(midPos, 30.f, Color4F::RED);
+        
+        auto midPosDelta = midPos - recentMidPos;
+        auto mapCurPos = mapSprite->getPosition();
+        mapCurPos.x += midPosDelta.x;
+        mapCurPos.y += midPosDelta.y;
+        if (reachScreenBoundary(mapCurPos, mapSprite)) {
+            return;
+        }
+        mapSprite->setPosition(mapCurPos);
+        recentMidPos = midPos;
+        
+        auto scale = mapSprite->getScale();
+        float curFingersDistance = touchPositions[0].distance(touchPositions[1]);
+        auto deltaRatio = (curFingersDistance - recentFingersDistance) / recentFingersDistance;
+        scale += deltaRatio;
+        mapSprite->setScale(scale);
+        recentFingersDistance = curFingersDistance;
     }
 
 }
@@ -152,7 +164,7 @@ void HelloWorld::touchesEnded(const std::vector<cocos2d::Touch *> &touches, coco
     for (auto &touch : touches) {
         int touchId = touch->getID();
         if (touchId > 1) {
-            break;
+            continue;
         }
         auto iter = touchIDs.find(touchId);
         if (iter != touchIDs.end()) {
@@ -163,9 +175,54 @@ void HelloWorld::touchesEnded(const std::vector<cocos2d::Touch *> &touches, coco
     drawNodeForMidPoint->clear();
 }
 
+Size HelloWorld::getCurrentSize(cocos2d::Node *node)
+{
+    auto curScale = node->getScale();
+    auto contentSize = node->getContentSize();
+    return Size(contentSize.width * curScale, contentSize.height * curScale);
+}
+
+void HelloWorld::setCurAnchor(const cocos2d::Vec2 &localPos, cocos2d::Node *node)
+{
+    auto contentSize = node->getContentSize();
+    auto curAnchor = Vec2(localPos.x / contentSize.width, localPos.y / contentSize.height);
+    
+    auto curSize = getCurrentSize(node);
+    auto delta = curAnchor - node->getAnchorPoint();
+    auto deltaDistance = Vec2(delta.x * curSize.width, delta.y * curSize.height);
+    node->setAnchorPoint(curAnchor);
+    node->setPosition(node->getPosition() + deltaDistance);
+}
+
+// TODO: check screen boundary hit
+bool HelloWorld::reachScreenBoundary(cocos2d::Vec2 &nextPos, cocos2d::Node *node)
+{
+    return false;
+    
+    auto curSize = getCurrentSize(node);
+    auto curAnchor = node->getAnchorPoint();
+    float leftSelf = curAnchor.x * curSize.width;
+    float rightSelf = (1- curAnchor.x) * curSize.width;
+    float topSelf = (1 - curAnchor.y) * curSize.height;
+    float bottomSelf = curAnchor.y * curSize.height;
+    
+    auto winSize = Director::getInstance()->getWinSize();
+    
+    float leftScreen = nextPos.x;
+    float rightScreen = winSize.width - nextPos.x;
+    float topScreen = winSize.height - nextPos.y;
+    float bottomScreen = nextPos.y;
+    
+    if ((leftScreen - leftSelf) > 0 && (rightScreen - rightSelf) > 0 && (bottomScreen - bottomSelf) > 0 && (topScreen - topSelf) > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 Vec2 HelloWorld::getMidPos(const cocos2d::Vec2 &pos1, const cocos2d::Vec2 &pos2)
 {
-    return Vec2((pos1.x + pos2.x) / 2, (pos1.y + pos2.y) / 2);
+    return (pos1 + pos2) / 2;
 }
 
 void HelloWorld::update(float delta)

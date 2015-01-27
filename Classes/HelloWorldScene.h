@@ -28,12 +28,21 @@ public:
     std::map<int, cocos2d::Vec2> touchPositions;
     
     cocos2d::Vec2 getMidPos(const cocos2d::Vec2 &pos1, const cocos2d::Vec2 &pos2);
+    cocos2d::Vec2 recentMidPos;
     
     cocos2d::DrawNode *drawNodeForFinger1;
     cocos2d::DrawNode *drawNodeForFinger2;
     cocos2d::DrawNode *drawNodeForMidPoint;
     
     std::map<int, cocos2d::DrawNode*> fingerDrawNodes;
+    
+    void setCurAnchor(const cocos2d::Vec2 &localPos, cocos2d::Node *node);
+    
+    bool reachScreenBoundary(cocos2d::Vec2 &nextPos, cocos2d::Node *node);
+
+    float recentFingersDistance;
+    
+    cocos2d::Size getCurrentSize(cocos2d::Node *node);
 };
 
 #endif // __HELLOWORLD_SCENE_H__
