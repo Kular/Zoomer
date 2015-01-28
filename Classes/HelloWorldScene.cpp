@@ -42,7 +42,9 @@ bool HelloWorld::init()
     mapSprite->setAnchorPoint(Vec2(0.5f, 0.5f));
     mapSprite->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
     auto size = mapSprite->getContentSize();
-    log("map size: (%.0f, %.0f)", size.width, size.height);
+    maxScale = 1.5f;
+    minScale = MAX(visibleSize.width / size.width, visibleSize.height / size.height);
+
     this->addChild(mapSprite, 0, MAP_TAG);
     
     touchIDs = std::map<int, bool>();
@@ -143,17 +145,29 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
         auto mapCurPos = mapSprite->getPosition();
         mapCurPos.x += midPosDelta.x;
         mapCurPos.y += midPosDelta.y;
-        if (reachScreenBoundary(mapCurPos, mapSprite)) {
-            return;
+        
+        switch (reachScreenBoundary(mapSprite, mapCurPos)) {
+            case 0:
+                mapSprite->setPosition(mapCurPos);
+                break;
+            case 1:
+                mapSprite->setPositionY(mapCurPos.y);
+                break;
+            case 2:
+                mapSprite->setPositionX(mapCurPos.x);
+                break;
+            default:
+                break;
         }
-        mapSprite->setPosition(mapCurPos);
         recentMidPos = midPos;
         
-        auto scale = mapSprite->getScale();
+        auto mapCurScale = mapSprite->getScale();
         float curFingersDistance = touchPositions[0].distance(touchPositions[1]);
         auto deltaRatio = (curFingersDistance - recentFingersDistance) / recentFingersDistance;
-        scale += deltaRatio;
-        mapSprite->setScale(scale);
+        mapCurScale += deltaRatio;
+        if (mapCurScale >= minScale && mapCurScale <= maxScale && reachScreenBoundary(mapSprite, mapCurScale) == false) {
+            mapSprite->setScale(mapCurScale);
+        }
         recentFingersDistance = curFingersDistance;
     }
 
@@ -175,7 +189,7 @@ void HelloWorld::touchesEnded(const std::vector<cocos2d::Touch *> &touches, coco
     drawNodeForMidPoint->clear();
 }
 
-Size HelloWorld::getCurrentSize(cocos2d::Node *node)
+Size HelloWorld::getCurrentSize(const cocos2d::Node *node)
 {
     auto curScale = node->getScale();
     auto contentSize = node->getContentSize();
@@ -194,11 +208,9 @@ void HelloWorld::setCurAnchor(const cocos2d::Vec2 &localPos, cocos2d::Node *node
     node->setPosition(node->getPosition() + deltaDistance);
 }
 
-// TODO: check screen boundary hit
-bool HelloWorld::reachScreenBoundary(cocos2d::Vec2 &nextPos, cocos2d::Node *node)
+
+int HelloWorld::reachScreenBoundary(const cocos2d::Node *node, const cocos2d::Vec2 &nextPos)
 {
-    return false;
-    
     auto curSize = getCurrentSize(node);
     auto curAnchor = node->getAnchorPoint();
     float leftSelf = curAnchor.x * curSize.width;
@@ -213,10 +225,41 @@ bool HelloWorld::reachScreenBoundary(cocos2d::Vec2 &nextPos, cocos2d::Node *node
     float topScreen = winSize.height - nextPos.y;
     float bottomScreen = nextPos.y;
     
-    if ((leftScreen - leftSelf) > 0 && (rightScreen - rightSelf) > 0 && (bottomScreen - bottomSelf) > 0 && (topScreen - topSelf) > 0) {
-        return false;
-    } else {
+    int retval = 0;
+    
+    if ((leftScreen - leftSelf) > 0 || (rightScreen - rightSelf) > 0) {
+        retval += 1;
+    }
+    if ((bottomScreen - bottomSelf) > 0 || (topScreen - topSelf) > 0) {
+        retval += 2;
+    }
+    
+    return retval;
+}
+
+bool HelloWorld::reachScreenBoundary(const cocos2d::Node *node, const float &nextScale)
+{
+    auto contentSize = node->getContentSize();
+    auto nextSize = Size(nextScale * contentSize.width, nextScale * contentSize.height);
+    
+    auto curAnchor = node->getAnchorPoint();
+    float leftSelf = curAnchor.x * nextSize.width;
+    float rightSelf = (1- curAnchor.x) * nextSize.width;
+    float topSelf = (1 - curAnchor.y) * nextSize.height;
+    float bottomSelf = curAnchor.y * nextSize.height;
+    
+    auto pos = node->getPosition();
+    auto winSize = Director::getInstance()->getWinSize();
+    
+    float leftScreen = pos.x;
+    float rightScreen = winSize.width - pos.x;
+    float topScreen = winSize.height - pos.y;
+    float bottomScreen = pos.y;
+    
+    if ((leftScreen - leftSelf) > 0 || (rightScreen - rightSelf) > 0 || (bottomScreen - bottomSelf) > 0 || (topScreen - topSelf) > 0) {
         return true;
+    } else {
+        return false;
     }
 }
 

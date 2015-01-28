@@ -38,11 +38,15 @@ public:
     
     void setCurAnchor(const cocos2d::Vec2 &localPos, cocos2d::Node *node);
     
-    bool reachScreenBoundary(cocos2d::Vec2 &nextPos, cocos2d::Node *node);
+    int reachScreenBoundary(const cocos2d::Node *node, const cocos2d::Vec2 &nextPos);
+    bool reachScreenBoundary(const cocos2d::Node *node, const float &nextScale);
 
     float recentFingersDistance;
     
-    cocos2d::Size getCurrentSize(cocos2d::Node *node);
+    cocos2d::Size getCurrentSize(const cocos2d::Node *node);
+    
+    float minScale, maxScale;
+    
 };
 
 #endif // __HELLOWORLD_SCENE_H__
