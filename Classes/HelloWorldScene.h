@@ -29,6 +29,7 @@ public:
     
     cocos2d::Vec2 getMidPos(const cocos2d::Vec2 &pos1, const cocos2d::Vec2 &pos2);
     cocos2d::Vec2 recentMidPos;
+    cocos2d::Vec2 recentAnchor;
     
     cocos2d::DrawNode *drawNodeForFinger1;
     cocos2d::DrawNode *drawNodeForFinger2;
@@ -36,10 +37,12 @@ public:
     
     std::map<int, cocos2d::DrawNode*> fingerDrawNodes;
     
-    void setCurAnchor(const cocos2d::Vec2 &localPos, cocos2d::Node *node);
+    void setCurAnchorWithLocalPos(const cocos2d::Vec2 &localPos, cocos2d::Node *node);
+    void setCurAnchor(const cocos2d::Vec2 &curAnchor, cocos2d::Node *node);
     
     int reachScreenBoundary(const cocos2d::Node *node, const cocos2d::Vec2 &nextPos);
     bool reachScreenBoundary(const cocos2d::Node *node, const float &nextScale);
+    int reachBoundary(const cocos2d::Node *node, const float &nextScale);
 
     float recentFingersDistance;
     

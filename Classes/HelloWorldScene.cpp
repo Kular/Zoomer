@@ -44,7 +44,8 @@ bool HelloWorld::init()
     auto size = mapSprite->getContentSize();
     maxScale = 1.5f;
     minScale = MAX(visibleSize.width / size.width, visibleSize.height / size.height);
-
+    log("minScale: %f", minScale);
+    
     this->addChild(mapSprite, 0, MAP_TAG);
     
     touchIDs = std::map<int, bool>();
@@ -114,8 +115,8 @@ void HelloWorld::touchesBegan(const std::vector<cocos2d::Touch *> &touches, coco
         }
         recentMidPos = midPos;
         auto locationInNode = target->convertToNodeSpace(recentMidPos);
-        setCurAnchor(locationInNode, mapSprite);
-        
+        setCurAnchorWithLocalPos(locationInNode, mapSprite);
+        recentAnchor = mapSprite->getAnchorPoint();
         recentFingersDistance = touchPositions[0].distance(touchPositions[1]);
     }
     
@@ -145,28 +146,96 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
         auto mapCurPos = mapSprite->getPosition();
         mapCurPos.x += midPosDelta.x;
         mapCurPos.y += midPosDelta.y;
+        recentMidPos = midPos;
         
         switch (reachScreenBoundary(mapSprite, mapCurPos)) {
             case 0:
                 mapSprite->setPosition(mapCurPos);
                 break;
+            // hit left or right
             case 1:
                 mapSprite->setPositionY(mapCurPos.y);
+                setCurAnchorWithLocalPos(event->getCurrentTarget()->convertToNodeSpace(recentMidPos), mapSprite);
+                recentAnchor = mapSprite->getAnchorPoint();
                 break;
+            // hit top or bottom
             case 2:
                 mapSprite->setPositionX(mapCurPos.x);
+                setCurAnchorWithLocalPos(event->getCurrentTarget()->convertToNodeSpace(recentMidPos), mapSprite);
+                recentAnchor = mapSprite->getAnchorPoint();
                 break;
             default:
+                setCurAnchorWithLocalPos(event->getCurrentTarget()->convertToNodeSpace(recentMidPos), mapSprite);
+                recentAnchor = mapSprite->getAnchorPoint();
                 break;
         }
-        recentMidPos = midPos;
         
         auto mapCurScale = mapSprite->getScale();
         float curFingersDistance = touchPositions[0].distance(touchPositions[1]);
         auto deltaRatio = (curFingersDistance - recentFingersDistance) / recentFingersDistance;
         mapCurScale += deltaRatio;
-        if (mapCurScale >= minScale && mapCurScale <= maxScale && reachScreenBoundary(mapSprite, mapCurScale) == false) {
+        
+        // when scaling up
+        if (deltaRatio > 0 && mapCurScale < maxScale) {
+            setCurAnchor(recentAnchor, mapSprite);
             mapSprite->setScale(mapCurScale);
+        }
+        
+        // when scaling down
+        if (deltaRatio < 0 && mapCurScale > minScale) {
+            Vec2 anchor;
+            switch (reachBoundary(mapSprite, mapCurScale)) {
+                case 0:
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // left
+                case 1:
+                    anchor = mapSprite->getAnchorPoint();
+                    setCurAnchor(Vec2(0, anchor.y), mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // right
+                case 2:
+                    anchor = mapSprite->getAnchorPoint();
+                    setCurAnchor(Vec2(1, anchor.y), mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // top
+                case 4:
+                    anchor = mapSprite->getAnchorPoint();
+                    setCurAnchor(Vec2(anchor.x, 1), mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // bottom
+                case 8:
+                    anchor = mapSprite->getAnchorPoint();
+                    setCurAnchor(Vec2(anchor.x, 0), mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // left-top
+                case 5:
+                    setCurAnchor(Vec2(0, 1), mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // right-top
+                case 6:
+                    setCurAnchor(Vec2(1, 1), mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // left-bottom
+                case 9:
+                    setCurAnchor(Vec2::ZERO, mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                // right-bottom
+                case 10:
+                    setCurAnchor(Vec2(1, 0), mapSprite);
+                    mapSprite->setScale(mapCurScale);
+                    break;
+                default:
+                    break;
+            }
+            
         }
         recentFingersDistance = curFingersDistance;
     }
@@ -196,16 +265,21 @@ Size HelloWorld::getCurrentSize(const cocos2d::Node *node)
     return Size(contentSize.width * curScale, contentSize.height * curScale);
 }
 
-void HelloWorld::setCurAnchor(const cocos2d::Vec2 &localPos, cocos2d::Node *node)
+void HelloWorld::setCurAnchorWithLocalPos(const cocos2d::Vec2 &localPos, cocos2d::Node *node)
 {
     auto contentSize = node->getContentSize();
     auto curAnchor = Vec2(localPos.x / contentSize.width, localPos.y / contentSize.height);
     
+    setCurAnchor(curAnchor, node);
+}
+
+void HelloWorld::setCurAnchor(const cocos2d::Vec2 &curAnchor, cocos2d::Node *node) {
     auto curSize = getCurrentSize(node);
     auto delta = curAnchor - node->getAnchorPoint();
     auto deltaDistance = Vec2(delta.x * curSize.width, delta.y * curSize.height);
     node->setAnchorPoint(curAnchor);
-    node->setPosition(node->getPosition() + deltaDistance);
+    auto newPos = node->getPosition() + deltaDistance;
+    node->setPosition(newPos);
 }
 
 
@@ -227,10 +301,10 @@ int HelloWorld::reachScreenBoundary(const cocos2d::Node *node, const cocos2d::Ve
     
     int retval = 0;
     
-    if ((leftScreen - leftSelf) > 0 || (rightScreen - rightSelf) > 0) {
+    if ((leftScreen - leftSelf) >= 0 || (rightScreen - rightSelf) >= 0) {
         retval += 1;
     }
-    if ((bottomScreen - bottomSelf) > 0 || (topScreen - topSelf) > 0) {
+    if ((bottomScreen - bottomSelf) >= 0 || (topScreen - topSelf) >= 0) {
         retval += 2;
     }
     
@@ -261,6 +335,42 @@ bool HelloWorld::reachScreenBoundary(const cocos2d::Node *node, const float &nex
     } else {
         return false;
     }
+}
+
+int HelloWorld::reachBoundary(const cocos2d::Node *node, const float &nextScale)
+{
+    int retval = 0;
+    auto contentSize = node->getContentSize();
+    auto nextSize = Size(nextScale * contentSize.width, nextScale * contentSize.height);
+    
+    auto curAnchor = node->getAnchorPoint();
+    float leftSelf = curAnchor.x * nextSize.width;
+    float rightSelf = (1- curAnchor.x) * nextSize.width;
+    float topSelf = (1 - curAnchor.y) * nextSize.height;
+    float bottomSelf = curAnchor.y * nextSize.height;
+    
+    auto pos = node->getPosition();
+    auto winSize = Director::getInstance()->getWinSize();
+    
+    float leftScreen = pos.x;
+    float rightScreen = winSize.width - pos.x;
+    float topScreen = winSize.height - pos.y;
+    float bottomScreen = pos.y;
+    
+    if (leftScreen - leftSelf >= 0) {
+        retval += 1;
+    }
+    if (rightScreen - rightSelf >= 0) {
+        retval += 2;
+    }
+    if (topScreen - topSelf >= 0) {
+        retval += 4;
+    }
+    if (bottomScreen - bottomSelf >= 0) {
+        retval += 8;
+    }
+
+    return retval;
 }
 
 Vec2 HelloWorld::getMidPos(const cocos2d::Vec2 &pos1, const cocos2d::Vec2 &pos2)
