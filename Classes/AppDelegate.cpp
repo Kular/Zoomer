@@ -1,5 +1,6 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
+#include "ByeWorldScene.h"
 
 USING_NS_CC;
 
@@ -41,8 +42,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     director->setDisplayStats(true);
     director->setAnimationInterval(1.0 / 60);
-    
-    auto scene = HelloWorld::createScene();
+
+    //    auto scene = HelloWorld::createScene();
+    auto scene = ByeWorld::create();
+    scene->initWithVisibleSize(visibleSize);
     director->runWithScene(scene);
 
     return true;

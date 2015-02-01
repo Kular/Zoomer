@@ -75,7 +75,6 @@ bool HelloWorld::init()
     
     eventDispatcher->addEventListenerWithSceneGraphPriority(listener, mapSprite);
     
-    //    this->scheduleUpdate();
     return true;
 }
 
@@ -377,13 +376,6 @@ Vec2 HelloWorld::getMidPos(const cocos2d::Vec2 &pos1, const cocos2d::Vec2 &pos2)
 {
     return (pos1 + pos2) / 2;
 }
-
-void HelloWorld::update(float delta)
-{
-    auto anchor = mapSprite->getAnchorPoint();
-    mapSprite->setAnchorPoint(Vec2(anchor.x + delta / 5, anchor.y + delta / 5));
-}
-
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {

@@ -13,8 +13,6 @@ public:
     
     void menuCloseCallback(cocos2d::Ref* pSender);
     
-    void update(float delta);
-    
     CREATE_FUNC(HelloWorld);
     
     cocos2d::Sprite *mapSprite;
