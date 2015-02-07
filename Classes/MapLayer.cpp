@@ -16,7 +16,8 @@ bool MapLayer::initWithVisibleSize(const cocos2d::Size &visibleSize)
     }
     
     m_Map = Sprite::create("res/test_map_grid.png");
-    m_Map->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
+    m_Map->setAnchorPoint(Vec2::ZERO);
+    m_Map->setPosition(Vec2::ZERO);
     this->addChild(m_Map);
     return true;
 }
