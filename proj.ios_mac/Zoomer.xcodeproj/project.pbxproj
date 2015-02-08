@@ -58,6 +58,8 @@
 		521A8E6519F0C34300D177D7 /* Default-736h@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 521A8E6319F0C34300D177D7 /* Default-736h@3x.png */; };
 		521A8EA919F11F5000D177D7 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 521A8EA819F11F5000D177D7 /* fonts */; };
 		521A8EAA19F11F5000D177D7 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 521A8EA819F11F5000D177D7 /* fonts */; };
+		B52146601A879D5800D8E875 /* ZoomerScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B521465E1A879D5800D8E875 /* ZoomerScene.cpp */; };
+		B52146671A87AE5800D8E875 /* SampleScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52146651A87AE5800D8E875 /* SampleScene.cpp */; };
 		B55200E91A7E249B00EED3A4 /* ByeWorldScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55200E71A7E249B00EED3A4 /* ByeWorldScene.cpp */; };
 		B55200EC1A7E36A000EED3A4 /* MapLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55200EA1A7E36A000EED3A4 /* MapLayer.cpp */; };
 		B55200EF1A7E554000EED3A4 /* TwoFingerTouchVisualizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55200ED1A7E554000EED3A4 /* TwoFingerTouchVisualizer.cpp */; };
@@ -150,6 +152,11 @@
 		521A8E6219F0C34300D177D7 /* Default-667h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-667h@2x.png"; sourceTree = "<group>"; };
 		521A8E6319F0C34300D177D7 /* Default-736h@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-736h@3x.png"; sourceTree = "<group>"; };
 		521A8EA819F11F5000D177D7 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fonts; sourceTree = "<group>"; };
+		B521465E1A879D5800D8E875 /* ZoomerScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZoomerScene.cpp; sourceTree = "<group>"; };
+		B521465F1A879D5800D8E875 /* ZoomerScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZoomerScene.h; sourceTree = "<group>"; };
+		B52146621A87AD3400D8E875 /* Zoomer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Zoomer.h; sourceTree = "<group>"; };
+		B52146651A87AE5800D8E875 /* SampleScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleScene.cpp; sourceTree = "<group>"; };
+		B52146661A87AE5800D8E875 /* SampleScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SampleScene.h; sourceTree = "<group>"; };
 		B55200E71A7E249B00EED3A4 /* ByeWorldScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByeWorldScene.cpp; sourceTree = "<group>"; };
 		B55200E81A7E249B00EED3A4 /* ByeWorldScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByeWorldScene.h; sourceTree = "<group>"; };
 		B55200EA1A7E36A000EED3A4 /* MapLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLayer.cpp; sourceTree = "<group>"; };
@@ -298,8 +305,9 @@
 				B55200E81A7E249B00EED3A4 /* ByeWorldScene.h */,
 				B55200EA1A7E36A000EED3A4 /* MapLayer.cpp */,
 				B55200EB1A7E36A000EED3A4 /* MapLayer.h */,
-				B55200ED1A7E554000EED3A4 /* TwoFingerTouchVisualizer.cpp */,
-				B55200EE1A7E554000EED3A4 /* TwoFingerTouchVisualizer.h */,
+				B52146641A87ADA800D8E875 /* LxZoomer */,
+				B52146651A87AE5800D8E875 /* SampleScene.cpp */,
+				B52146661A87AE5800D8E875 /* SampleScene.h */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -351,6 +359,18 @@
 			name = Icons;
 			path = ios;
 			sourceTree = SOURCE_ROOT;
+		};
+		B52146641A87ADA800D8E875 /* LxZoomer */ = {
+			isa = PBXGroup;
+			children = (
+				B55200ED1A7E554000EED3A4 /* TwoFingerTouchVisualizer.cpp */,
+				B55200EE1A7E554000EED3A4 /* TwoFingerTouchVisualizer.h */,
+				B521465E1A879D5800D8E875 /* ZoomerScene.cpp */,
+				B521465F1A879D5800D8E875 /* ZoomerScene.h */,
+				B52146621A87AD3400D8E875 /* Zoomer.h */,
+			);
+			name = LxZoomer;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -499,6 +519,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				46880B8819C43A87006E1F66 /* AppDelegate.cpp in Sources */,
+				B52146601A879D5800D8E875 /* ZoomerScene.cpp in Sources */,
+				B52146671A87AE5800D8E875 /* SampleScene.cpp in Sources */,
 				46880B8A19C43A87006E1F66 /* HelloWorldScene.cpp in Sources */,
 				B55200EC1A7E36A000EED3A4 /* MapLayer.cpp in Sources */,
 				B55200EF1A7E554000EED3A4 /* TwoFingerTouchVisualizer.cpp in Sources */,

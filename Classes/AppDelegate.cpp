@@ -1,6 +1,8 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
 #include "ByeWorldScene.h"
+#include "MapLayer.h"
+#include "SampleScene.h"
 
 USING_NS_CC;
 
@@ -41,8 +43,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setDisplayStats(true);
     director->setAnimationInterval(1.0 / 60);
 
-    auto scene = ByeWorld::create();
-    scene->initWithVisibleSize(visibleSize);
+    auto scene = SampleScene::create();
+    auto mapLayer = MapLayer::create();
+    mapLayer->initWithVisibleSize(visibleSize);
+    scene->initWithVisibleSizeWorldLayer(visibleSize, mapLayer);
+    
     director->runWithScene(scene);
 
     return true;
