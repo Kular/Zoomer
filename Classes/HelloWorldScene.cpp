@@ -171,7 +171,7 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
         
         auto mapCurScale = mapSprite->getScale();
         float curFingersDistance = touchPositions[0].distance(touchPositions[1]);
-        auto deltaRatio = (curFingersDistance - recentFingersDistance) / recentFingersDistance * SCALE_SPEED;
+        auto deltaRatio = (curFingersDistance - recentFingersDistance) / recentFingersDistance;
         recentFingersDistance = curFingersDistance;
         if (recentFingersDistance < MIN_DISTANCE) {
             return;
@@ -186,6 +186,7 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
             return;
         }
         
+        deltaRatio *= SCALE_DOWN_SPEED;
         // when scaling down
         if (deltaRatio < 0 && mapCurScale >= minScale) {
             Vec2 anchor;

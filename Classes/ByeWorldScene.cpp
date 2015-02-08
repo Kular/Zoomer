@@ -179,7 +179,7 @@ void ByeWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, cocos2
         Vec2 midPos = getMidPos(m_TouchPositions[0], m_TouchPositions[1]);
         m_TwoFingerTouchVisualizer.clearMidPoint();
         m_TwoFingerTouchVisualizer.drawMidPoint(midPos, m_TouchPositions[0], m_TouchPositions[1]);
-        
+
         // moving
         auto midPosDelta = convertLocalPosToWorldSpace(midPos) - convertLocalPosToWorldSpace(m_RecentMidPos);
         auto recentCamPos = m_MainCamera->getPosition3D();
@@ -199,14 +199,11 @@ void ByeWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, cocos2
             m_RecentTargetPos = convertLocalPosToWorldSpace(midPos);
         }
         m_RecentMidPos = midPos;
-        
+
         // zooming-in/out
         float curFingersDistance = m_TouchPositions[0].distance(m_TouchPositions[1]);
-        auto deltaRatio = (curFingersDistance - m_RecentFingersDistance) / m_RecentFingersDistance * ZOOM_SPEED;
+        auto deltaRatio = (curFingersDistance - m_RecentFingersDistance) / m_RecentFingersDistance;
         m_RecentFingersDistance = curFingersDistance;
-        if (m_RecentFingersDistance < MIN_FINGERS_DISTANCE) {
-            return;
-        }
 
         if (deltaRatio == 0) {
             return;
@@ -230,6 +227,7 @@ void ByeWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, cocos2
         
         hitBoundary = getCameraHitBoundary(nextPos);
         Vec3 tmpTargetPos = Vec3::ZERO;
+        deltaRatio *= ZOOM_OUT_SPEED;
         switch (hitBoundary) {
             case 0:
                 m_MainCamera->setPosition3D(nextPos);

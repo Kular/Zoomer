@@ -2,7 +2,7 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
-#define SCALE_SPEED 0.6f
+#define SCALE_DOWN_SPEED 2.f
 #define MAX_SCALE 2.5f
 #define MIN_DISTANCE 300.f
 

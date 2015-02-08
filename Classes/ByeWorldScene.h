@@ -19,8 +19,7 @@
 #define NEAR 1.f
 #define FAR 9999.f
 #define MAX_ZOOM 2.5f
-#define ZOOM_SPEED 0.8f
-#define MIN_FINGERS_DISTANCE 300.f
+#define ZOOM_OUT_SPEED 2.f
 
 class ByeWorld : public cocos2d::Scene
 {
