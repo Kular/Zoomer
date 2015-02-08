@@ -42,7 +42,7 @@ bool HelloWorld::init()
     mapSprite->setAnchorPoint(Vec2(0.5f, 0.5f));
     mapSprite->setPosition(Vec2(visibleSize.width / 2, visibleSize.height / 2));
     auto size = mapSprite->getContentSize();
-    maxScale = 1.5f;
+    maxScale = MAX_SCALE;
     minScale = MAX(visibleSize.width / size.width, visibleSize.height / size.height);
     log("minScale: %f", minScale);
     
@@ -171,17 +171,23 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
         
         auto mapCurScale = mapSprite->getScale();
         float curFingersDistance = touchPositions[0].distance(touchPositions[1]);
-        auto deltaRatio = (curFingersDistance - recentFingersDistance) / recentFingersDistance;
+        auto deltaRatio = (curFingersDistance - recentFingersDistance) / recentFingersDistance * SCALE_SPEED;
+        recentFingersDistance = curFingersDistance;
+        if (recentFingersDistance < MIN_DISTANCE) {
+            return;
+        }
+        
         mapCurScale += deltaRatio;
         
         // when scaling up
         if (deltaRatio > 0 && mapCurScale < maxScale) {
             setCurAnchor(recentAnchor, mapSprite);
             mapSprite->setScale(mapCurScale);
+            return;
         }
         
         // when scaling down
-        if (deltaRatio < 0 && mapCurScale > minScale) {
+        if (deltaRatio < 0 && mapCurScale >= minScale) {
             Vec2 anchor;
             switch (reachBoundary(mapSprite, mapCurScale)) {
                 case 0:
@@ -236,7 +242,7 @@ void HelloWorld::touchesMoved(const std::vector<cocos2d::Touch *> &touches, coco
             }
             
         }
-        recentFingersDistance = curFingersDistance;
+        
     }
 
 }

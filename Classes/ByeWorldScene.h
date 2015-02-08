@@ -9,6 +9,7 @@
 #ifndef __ZOOMER__BYEWORLDSCENE__
 #define __ZOOMER__BYEWORLDSCENE__
 
+#include <iostream>
 #include <cocos2d.h>
 #include "TwoFingerTouchVisualizer.h"
 
@@ -17,6 +18,9 @@
 #define FIELD_OF_VIEW 60.f
 #define NEAR 1.f
 #define FAR 9999.f
+#define MAX_ZOOM 2.5f
+#define ZOOM_SPEED 0.8f
+#define MIN_FINGERS_DISTANCE 300.f
 
 class ByeWorld : public cocos2d::Scene
 {
@@ -26,7 +30,7 @@ public:
     
 private:
     
-    void initWorldCameraWithVisibleSize(const cocos2d::Size &visibleSize, const cocos2d::Size &worldSize);
+    void initMainCamera(const cocos2d::Size &visibleSize, const cocos2d::Size &worldSize);
     void initTouchIdsPositions();
     float deltaScaleToDeltaZ(const float &deltaScale);
     cocos2d::Vec2 getMidPos(const cocos2d::Vec2 &pos1, const cocos2d::Vec2 &pos2);
@@ -34,28 +38,32 @@ private:
     cocos2d::Size getCurrentCrossSectionSize() const;
     cocos2d::Size getHalfCrossSectionSize(const float &z = -1) const;
     int getCameraHitBoundary(const cocos2d::Vec3 &nextPos) const;
+    cocos2d::Vec2 convertLocalPosToWorldSpace(const cocos2d::Vec2 &pos) const;
     
     void touchesBegan(const std::vector<cocos2d::Touch *> &touches, cocos2d::Event *event);
     void touchesMoved(const std::vector<cocos2d::Touch *> &touches, cocos2d::Event *event);
     void touchesEnded(const std::vector<cocos2d::Touch *> &touches, cocos2d::Event *event);
     
+    // perspective camera settings
     float m_mTangentHalfFov;
     float m_Fov;
     float m_Aspect;
     float m_Near, m_Far;
-    float m_MaxZ;
-    float m_MinZ;
-    float m_NormalZ;
+    
+    float m_MaxZ; // MaxZ stands for Min Zoom
+    float m_MinZ; // MinZ stands for Max Zoom
+    float m_NormalZ; // NormalZ stands for Pixel-perfect Zoom
     float m_RecentZ;
     float m_RecentFingersDistance;
-    float m_RecentScale;
     
     std::map<int, bool> m_TouchIDs;
     std::map<int, cocos2d::Vec2> m_TouchPositions;
     
     cocos2d::Camera *m_MainCamera;
     cocos2d::Vec2 m_RecentMidPos;
+    cocos2d::Vec2 m_RecentTargetPos;
     
+    cocos2d::Size m_VisibleSize;
     cocos2d::Size m_WorldSize;
     
     TwoFingerTouchVisualizer m_TwoFingerTouchVisualizer;

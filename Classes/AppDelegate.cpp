@@ -31,19 +31,16 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
     
     auto visibleSize = director->getWinSize();
-    log("winSize: (%f, %f)", visibleSize.width, visibleSize.height);
     
     // check if the running device is iPhone6 plus
     if (visibleSize.width > 2048) {
         glview->setDesignResolutionSize(1920, 1080, ResolutionPolicy::SHOW_ALL);
         visibleSize = director->getWinSize();
-        log("new winSize: (%f, %f)", visibleSize.width, visibleSize.height);
     }
 
     director->setDisplayStats(true);
     director->setAnimationInterval(1.0 / 60);
 
-    //    auto scene = HelloWorld::createScene();
     auto scene = ByeWorld::create();
     scene->initWithVisibleSize(visibleSize);
     director->runWithScene(scene);
