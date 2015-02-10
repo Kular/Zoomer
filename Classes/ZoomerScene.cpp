@@ -8,6 +8,7 @@
 
 #include "ZoomerScene.h"
 
+using namespace Lx;
 USING_NS_CC;
 
 void ZoomerScene::initWithVisibleSizeWorldLayer(const cocos2d::Size &visibleSize, cocos2d::Layer *worldLayer)
@@ -47,6 +48,16 @@ void ZoomerScene::initWithVisibleSizeWorldLayer(const cocos2d::Size &visibleSize
 ZoomerScene::~ZoomerScene()
 {
     // Destructor
+}
+
+inline void ZoomerScene::addChildToWorldLayer(cocos2d::Node *node)
+{
+    m_WorldLayer->addChild(node);
+}
+
+inline void ZoomerScene::addChildToWorldLayer(cocos2d::Node *node, const int &zOrder, const int &tag)
+{
+    m_WorldLayer->addChild(node, zOrder, tag);
 }
 
 void ZoomerScene::initMainCamera()

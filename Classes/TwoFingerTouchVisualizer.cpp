@@ -8,6 +8,7 @@
 
 #include "TwoFingerTouchVisualizer.h"
 
+using namespace Lx;
 USING_NS_CC;
 
 #define NUM_OF_CIRCLES 2

@@ -11,7 +11,7 @@
 
 #include "Zoomer.h"
 
-class SampleScene : public ZoomerScene
+class SampleScene : public Lx::ZoomerScene
 {
     
 };

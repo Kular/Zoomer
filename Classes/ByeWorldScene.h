@@ -65,7 +65,7 @@ private:
     cocos2d::Size m_VisibleSize;
     cocos2d::Size m_WorldSize;
     
-    TwoFingerTouchVisualizer m_TwoFingerTouchVisualizer;
+    Lx::TwoFingerTouchVisualizer m_TwoFingerTouchVisualizer;
 };
 
 
